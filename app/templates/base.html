@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Distributed file system{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="container">
+                <h1>Distributed file system</h1>
+                <ul>
+                    <li><a href="{{ url_for('main.index') }}">Main</a></li>
+                    <li><a href="{{ url_for('main.files') }}">Files</a></li>
+                    <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; Spring 2025 Distributed file system</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Files - Distributed file system{% endblock %}
+
+{% block content %}
+<div class="files-page">
+    <h2>File management</h2>
+
+    <div class="files-container">
+        <div class="file-section">
+            <h3>Available files</h3>
+            {% if available_files %}
+                <ul class="file-list">
+                    {% for file in available_files %}
+                        <li class="file-item">
+                            <div class="file-info">
+                                <span class="file-name">{{ file.name }}</span>
+                                <span class="file-details">
+                                    Size: {{ file.size }} byte |
+                                    Uploaded: {{ file.uploaded_at }}
+                                </span>
+                            </div>
+                            <div class="file-actions">
+                                <a href="{{ url_for('main.download', file_id=file.id) }}" class="button primary">download</a>
+                                <form action="{{ url_for('main.delete', file_id=file.id) }}" method="POST" class="inline-form">
+                                    <button type="submit" class="button danger" onclick="return confirm('Seriously, bro?')">indeed! Delete</button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-files">no available files</p>
+            {% endif %}
+        </div>
+
+        <div class="file-section">
+            <h3>Downloaded files</h3>
+            {% if downloaded_files %}
+                <ul class="file-list">
+                    {% for file in downloaded_files %}
+                        <li class="file-item">
+                            <div class="file-info">
+                                <span class="file-name">{{ file.name }}</span>
+                                <span class="file-details">
+                                    Downloaded: {{ file.downloaded_at }}
+                                </span>
+                            </div>
+                            <div class="file-actions">
+                                <a href="{{ url_for('main.download', file_id=file.id) }}" class="button">Download again</a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="no-files">no downloaded files</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="upload-action">
+        <a href="{{ url_for('main.upload') }}" class="button primary">Upload new file</a>
+    </div>
+</div>
+{% endblock %}
