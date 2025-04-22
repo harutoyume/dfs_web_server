@@ -15,7 +15,6 @@ RUN mkdir -p /app/uploads && chmod 777 /app/uploads
 # Set environment variables
 ENV FLASK_APP=run.py
 ENV FLASK_DEBUG=0
-ENV METADATA_SERVER_URL=http://metadata-server:8080
 
 # Expose port
 EXPOSE 5000

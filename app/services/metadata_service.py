@@ -13,7 +13,6 @@ class MetadataService:
         """Upload file to the Metadata server"""
         try:
             url = f"{self.base_url}/api/files/uploadChunked"
-
             with open(file_path, 'rb') as file:
                 files = {'file': file}
                 payload = {'chunkSize': str(chunk_size)}
@@ -22,6 +21,7 @@ class MetadataService:
 
                 if response.status_code == 200:
                     logger.info(f"File uploaded successfully: {file_path}")
+                    logger.info(f"Response json: {response.json()}")
                     return response.json()
                 else:
                     logger.error(f"Error uploading file: {response.text}")
