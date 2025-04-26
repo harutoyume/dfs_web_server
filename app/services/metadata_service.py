@@ -1,6 +1,9 @@
+# Import downloaded modules
 import requests
-import logging
 from flask import current_app
+
+# Import built-in modules
+import logging
 
 logger = logging.getLogger(__name__)
 

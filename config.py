@@ -1,5 +1,8 @@
-import os
+# Import dowloaded modules
 from dotenv import load_dotenv
+
+# Import built-in modules
+import os
 
 # Check if there's .env file
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')

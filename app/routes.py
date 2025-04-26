@@ -1,17 +1,32 @@
-import os
-import tempfile
+# Import dowloaded modules
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, send_file
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
+
+# Import built-in modules
+import os
 import logging
-from app.services.metadata_service import MetadataService
+import tempfile
+
+# Import project files
 from app.services.storage_service import StorageService
+from app.services.metadata_service import MetadataService
+from app.services.user_service import RegisterForm, LoginForm
 
 main = Blueprint('main', __name__)
 logger = logging.getLogger(__name__)
 
+login_manager = LoginManager()
+login_manager.init_app(main)
+
 # In-memory store for available files (in a real app, this would be a database)
 available_files = []
 downloaded_files = []
+
+# User loader function to be implemented
+# @login_manager.user_loader
+# def load_user(user_id: int) -> ...:
+#     pass
 
 
 @main.route('/')
@@ -19,7 +34,27 @@ def index():
     return render_template('index.html')
 
 
+# @main.route('/login', methods=['GET', 'POST'])
+# def login():
+#     Some login actions
+#     pass
+
+
+# @main.route('/logout')
+# @login_required
+# def logout():
+#     Some logout actions
+#     pass
+
+
+# @main.route('/register', methods=['GET', 'POST'])
+# def register():
+#     Some register actions
+#     pass
+
+
 @main.route('/files')
+# @login_required
 def files():
     return render_template('files.html',
                            available_files=available_files,
@@ -27,6 +62,7 @@ def files():
 
 
 @main.route('/upload', methods=['GET', 'POST'])
+# @login_required
 def upload():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -76,7 +112,8 @@ def upload():
 
 
 @main.route('/download/<file_id>')
-def download(file_id):
+# @login_required
+def download(file_id: int):
     try:
         # Get file metadata and chunks from Metadata server
         metadata_service = MetadataService(current_app.config['METADATA_SERVER_URL'])

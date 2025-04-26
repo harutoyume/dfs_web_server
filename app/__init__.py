@@ -1,6 +1,11 @@
+# Import dowloaded modules
+from flask import Flask
+
+# Import built-in modules
 import os
 import logging
-from flask import Flask
+
+# Import project files
 from config import Config
 
 

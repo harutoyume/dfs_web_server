@@ -1,6 +1,9 @@
+# Import downloaded modules
 import requests
-import logging
+
+# Import built-in modules
 import os
+import logging
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
