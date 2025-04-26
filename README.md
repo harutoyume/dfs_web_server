@@ -31,4 +31,7 @@ requests==2.28.2
 Werkzeug==2.2.3
 gunicorn==20.1.0
 python-dotenv==1.0.0
+WTFForms==2.3.3
+Flask-WTF==1.2.2
+Flask-Login==0.6.3
 ```
