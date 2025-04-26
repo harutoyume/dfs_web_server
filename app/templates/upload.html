@@ -6,7 +6,7 @@
 <div class="upload-page">
     <h2>Upload file</h2>
 
-    <form action="{{ url_for('main.upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+    <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
         <div class="form-group">
             <label for="file">Select a file:</label>
             <input type="file" id="file" name="file" required>
@@ -14,7 +14,7 @@
 
         <div class="form-actions">
             <button type="submit" class="button primary">Upload</button>
-            <a href="{{ url_for('main.files') }}" class="button">Cancel</a>
+            <a href="{{ url_for('files') }}" class="button">Cancel</a>
         </div>
     </form>
 </div>

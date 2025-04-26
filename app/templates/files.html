@@ -21,8 +21,8 @@
                                 </span>
                             </div>
                             <div class="file-actions">
-                                <a href="{{ url_for('main.download', file_id=file.id) }}" class="button primary">download</a>
-                                <form action="{{ url_for('main.index', file_id=file.id) }}" method="POST" class="inline-form">
+                                <a href="{{ url_for('download', file_id=file.id) }}" class="button primary">download</a>
+                                <form action="{{ url_for('index', file_id=file.id) }}" method="POST" class="inline-form">
                                     <button type="submit" class="button danger" onclick="return confirm('Seriously, bro?')">indeed! Delete</button>
                                 </form>
                             </div>
@@ -47,7 +47,7 @@
                                 </span>
                             </div>
                             <div class="file-actions">
-                                <a href="{{ url_for('main.download', file_id=file.id) }}" class="button">Download again</a>
+                                <a href="{{ url_for('download', file_id=file.id) }}" class="button">Download again</a>
                             </div>
                         </li>
                     {% endfor %}
@@ -59,7 +59,7 @@
     </div>
 
     <div class="upload-action">
-        <a href="{{ url_for('main.upload') }}" class="button primary">Upload new file</a>
+        <a href="{{ url_for('upload') }}" class="button primary">Upload new file</a>
     </div>
 </div>
 {% endblock %}

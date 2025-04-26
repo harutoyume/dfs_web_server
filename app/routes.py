@@ -1,5 +1,5 @@
 # Import dowloaded modules
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, current_app, send_file
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 
@@ -8,61 +8,91 @@ import os
 import logging
 import tempfile
 
-# Import project files
+# Import project file
+from config import Config
 from app.services.storage_service import StorageService
 from app.services.metadata_service import MetadataService
 from app.services.user_service import RegisterForm, LoginForm
 
-main = Blueprint('main', __name__)
-logger = logging.getLogger(__name__)
+# Create application
+app = Flask(__name__)
+app.config.from_object(Config)
 
+# Configure logging
+logger = logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Ensure upload directory exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Setup user-system manager
 login_manager = LoginManager()
-login_manager.init_app(main)
+login_manager.init_app(app)
 
 # In-memory store for available files (in a real app, this would be a database)
 available_files = []
 downloaded_files = []
 
-# User loader function to be implemented
-# @login_manager.user_loader
-# def load_user(user_id: int) -> ...:
-#     pass
+# Setup user loader to to reload the user object from the user ID stored in the session
+@login_manager.user_loader
+def load_user(user_id: str):
+    return None
 
-
-@main.route('/')
+@app.route('/')
 def index():
     return render_template('index.html')
 
 
-# @main.route('/login', methods=['GET', 'POST'])
-# def login():
-#     Some login actions
-#     pass
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        # database initialization
+        # check email
+        # check password
+
+        return redirect('/')
+    
+    return render_template('login.html', form=form)
 
 
-# @main.route('/logout')
-# @login_required
-# def logout():
-#     Some logout actions
-#     pass
+@app.route('/logout')
+@login_required
+def logout():
+    return redirect('/')
 
 
-# @main.route('/register', methods=['GET', 'POST'])
-# def register():
-#     Some register actions
-#     pass
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', form=form, message="Passwords doesn't match!")
+        
+        # database initialization
+        # check email
+        
+        # create user entry
+        # insert user into database
+        return redirect('/login')
+
+    return render_template('register.html', form=form)
 
 
-@main.route('/files')
-# @login_required
+@app.route('/files')
+@login_required
 def files():
     return render_template('files.html',
                            available_files=available_files,
                            downloaded_files=downloaded_files)
 
 
-@main.route('/upload', methods=['GET', 'POST'])
-# @login_required
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
 def upload():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -111,8 +141,8 @@ def upload():
     return render_template('upload.html')
 
 
-@main.route('/download/<file_id>')
-# @login_required
+@app.route('/download/<file_id>')
+@login_required
 def download(file_id: int):
     try:
         # Get file metadata and chunks from Metadata server
