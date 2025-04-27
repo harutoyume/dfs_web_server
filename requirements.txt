@@ -6,3 +6,5 @@ python-dotenv==1.0.0
 WTFForms==2.3.3
 Flask-WTF==1.2.2
 Flask-Login==0.6.3
+SQLAlchemy==2.0.29
+sqlalchemy-serializer==1.4.22

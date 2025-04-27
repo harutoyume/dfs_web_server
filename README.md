@@ -2,26 +2,31 @@
 #### architecture
 ```
 web_server/
-web_server/
 ├── app/
-│   ├── __init__.py
 │   ├── routes.py
 │   ├── services/
-│   │   ├── __init__.py  
+│   │   ├── db_models.py
+│   │   ├── db_service.py
+│   │   ├── form_service.py
 │   │   ├── metadata_service.py
 │   │   └── storage_service.py
 │   ├── templates/
 │   │   ├── base.html
-│   │   ├── index.html
 │   │   ├── files.html
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── register.html
 │   │   └── upload.html
 │   └── static/
 │       └── css/
 │           └── style.css
+├── .env
+├── .gitignore
 ├── config.py
+├── Dockerfile
+├── README.md
 ├── requirements.txt
-├── run.py
-└── Dockerfile
+└── run.py
 ```
 
 #### requirements
@@ -34,4 +39,6 @@ python-dotenv==1.0.0
 WTFForms==2.3.3
 Flask-WTF==1.2.2
 Flask-Login==0.6.3
+SQLAlchemy==2.0.29
+sqlalchemy-serializer==1.4.22
 ```
