@@ -12,7 +12,9 @@ import tempfile
 from config import Config
 from app.services.storage_service import StorageService
 from app.services.metadata_service import MetadataService
-from app.services.user_service import RegisterForm, LoginForm
+from app.services.form_service import RegisterForm, LoginForm
+from app.services.db_models import User, File, UserFiles
+from app.services import db_service
 
 # Create application
 app = Flask(__name__)
@@ -37,11 +39,18 @@ downloaded_files = []
 
 # Setup user loader to to reload the user object from the user ID stored in the session
 @login_manager.user_loader
-def load_user(user_id: str):
-    return None
+def load_user(user_id):
+    db_session = db_service.create_session()
+    return db_session.query(User).get(user_id)
+
 
 @app.route('/')
 def index():
+    db_session = db_service.create_session()
+    
+    if current_user.is_authenticated:
+        print("Found authorized user!")
+
     return render_template('index.html')
 
 
@@ -50,11 +59,15 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        # database initialization
-        # check email
-        # check password
+        db_session = db_service.create_session()
+        user = db_session.query(User).filter(User.email == form.email.data).first()
 
-        return redirect('/')
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect('/')
+        
+        else:
+            return render_template('login.html', message="Wrong email or password!", form=form)
     
     return render_template('login.html', form=form)
 
@@ -62,6 +75,7 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    logout_user()
     return redirect('/')
 
 
@@ -71,13 +85,21 @@ def register():
 
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', form=form, message="Passwords doesn't match!")
+            return render_template('register.html', message="Passwords doesn't match!", form=form)
         
-        # database initialization
-        # check email
+        db_session = db_service.create_session()
+        if db_session.query(User).filter(User.email == form.email.data).first():
+            return render_template('register.html', message="Provided email is already used!")
         
-        # create user entry
-        # insert user into database
+        user = User(
+            username=form.name.data,
+            email=form.email.data
+        )
+        user.set_password(form.password.data)
+
+        db_session.add(user)
+        db_session.commit()
+
         return redirect('/login')
 
     return render_template('register.html', form=form)

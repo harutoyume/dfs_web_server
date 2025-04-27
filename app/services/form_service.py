@@ -10,7 +10,6 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     password_again = PasswordField('Repeat password', validators=[DataRequired()])
     name = StringField('Username', validators=[DataRequired()])
-    about = TextAreaField("About me")
     submit = SubmitField('Log in')
 
 
