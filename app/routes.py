@@ -89,7 +89,7 @@ def register():
         
         db_session = db_service.create_session()
         if db_session.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', message="Provided email is already used!")
+            return render_template('register.html', message="Provided email is already used!", form=form)
         
         user = User(
             username=form.name.data,
