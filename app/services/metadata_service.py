@@ -72,9 +72,11 @@ class MetadataService:
     def delete_file(self, file_uuid):
         """Delete file from the system"""
         try:
-            url = f"{self.base_url}/api/files/{file_uuid}"
+            url = f"{self.base_url}/api/files/delete"
 
-            response = requests.delete(url)
+            payload = {"fileUUID": file_uuid}
+
+            response = requests.delete(url, json=payload)
 
             if response.status_code == 200:
                 logger.info(f"File deleted: {file_uuid}")

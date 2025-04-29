@@ -176,8 +176,9 @@ def download(file_id: int):
         # Get file metadata and chunks from Metadata server
         metadata_service = MetadataService(current_app.config['METADATA_SERVER_URL'])
 
+        # Get file from database
         db_session = db_service.create_session()
-        file_data = db_session.query(File).filter(File.id == file_id).first()
+        file_data = db_session.query(File).filter(File.id == file_id and File.user_id == current_user.id).first()
         file_uuid = file_data.fileUUID
         filename = file_data.filename
 
@@ -202,27 +203,36 @@ def download(file_id: int):
         logger.error(f"Download error: {str(e)}")
         return redirect(url_for('files'))
 
-# ну такого бэк пока не могёт
-# @main.route('/delete/<file_id>', methods=['POST'])
-# def delete(file_id):
-#     try:
-#         # Delete file from Metadata server
-#         metadata_service = MetadataService(current_app.config['METADATA_SERVER_URL'])
-#         result = metadata_service.delete_file(file_id)
-#
-#         if result:
-#             # Remove from our lists
-#             global available_files, downloaded_files
-#             available_files = [f for f in available_files if f['id'] != file_id]
-#             downloaded_files = [f for f in downloaded_files if f['id'] != file_id]
-#
-#             flash('File deleted successfully')
-#             logger.info(f"File deleted: {file_id}")
-#         else:
-#             flash('Error deleting file')
-#
-#     except Exception as e:
-#         flash(f'Error: {str(e)}')
-#         logger.error(f"Delete error: {str(e)}")
-#
-#     return redirect(url_for('main.files'))
+
+@app.route('/delete/<file_id>')
+@login_required
+def delete(file_id):
+    try:
+        # Delete file from Metadata server
+        metadata_service = MetadataService(current_app.config['METADATA_SERVER_URL'])
+        
+        # Get file from database
+        db_session = db_service.create_session()
+        file_data = db_session.query(File).filter(File.id == file_id and File.user_id == current_user.id).first()
+        filename = file_data.filename
+        file_uuid = file_data.fileUUID
+
+        logger.info(f'User: "{current_user.username}"(id={current_user.id})\t->\tdelete\t->\t"{filename}"(id={file_data.id})')
+
+        result = metadata_service.delete_file(file_uuid)
+
+        if result:
+            # Remove from database
+            db_session.delete(file_data)
+            db_session.commit()
+
+            flash('File deleted successfully')
+            logger.info(f"File deleted: {file_id}")
+        else:
+            flash('Error deleting file')
+
+    except Exception as e:
+        flash(f'Error: {str(e)}')
+        logger.error(f"Delete error: {str(e)}")
+
+    return redirect(url_for('files'))

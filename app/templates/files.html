@@ -20,9 +20,9 @@
                                 </span>
                             </div>
                             <div class="file-actions">
-                                <a href="{{ url_for('download', file_id=file.id) }}" class="button primary">download</a>
-                                <form action="{{ url_for('index', file_id=file.id) }}" method="POST" class="inline-form">
-                                    <button type="submit" class="button danger" onclick="return confirm('Seriously, bro?')">indeed! Delete</button>
+                                <a href="{{ url_for('download', file_id=file.id) }}" class="button primary">Download</a>
+                                <form action="{{ url_for('delete', file_id=file.id) }}" class="inline-form">
+                                    <button type="submit" class="button danger" onclick="return confirm('Confirm deletion')">Delete</button>
                                 </form>
                             </div>
                         </li>
