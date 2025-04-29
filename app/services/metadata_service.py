@@ -2,6 +2,8 @@
 import requests
 
 # Import built-in modules
+import os
+import hashlib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,13 +13,28 @@ class MetadataService:
     def __init__(self, base_url):
         self.base_url = base_url
 
-    def upload_file(self, file_path, chunk_size=400):
+    def sha256(self, file_path):
+        BUF_SUZE = 65536 # 64KB
+        sha256 = hashlib.sha256()
+
+        with open(file_path, 'rb') as f:
+            while True:
+                data = f.read(BUF_SUZE)
+                if not data:
+                    break
+                sha256.update(data)
+        
+        return sha256.hexdigest()
+
+
+    def upload_file(self, file_path):
         """Upload file to the Metadata server"""
         try:
-            url = f"{self.base_url}/api/files/uploadChunked"
+            url = f"{self.base_url}/api/files/upload"
+            logger.info(f"Sending request to {url=}")
             with open(file_path, 'rb') as file:
-                files = {'file': file}
-                payload = {'chunkSize': str(chunk_size)}
+                files = {'file': (os.path.basename(file_path), file, 'application/octet-stream')}
+                payload = {'fileHash': self.sha256(file_path)}
 
                 response = requests.post(url, files=files, data=payload)
 
@@ -35,8 +52,10 @@ class MetadataService:
     def get_file_chunks(self, file_uuid):
         """Get file metadata and chunks information from Metadata server"""
         try:
-            url = f"{self.base_url}/api/storage/download"
+            url = f"{self.base_url}/api/files/download"
             payload = {"fileUUID": file_uuid}
+
+            logger.info(f"{url=}\n\n{payload=}")
 
             response = requests.post(url, json=payload)
 

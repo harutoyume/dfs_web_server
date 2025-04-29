@@ -16,6 +16,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     email: Mapped[str] = mapped_column(String, index=True, unique=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(String, nullable=True)
 
+    files = relationship("File", back_populates='user')
+
     def __repr__(self):
         return f'<User> {self.id} {self.name} {self.email}'
 
@@ -32,12 +34,7 @@ class File(SqlAlchemyBase, SerializerMixin):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     filename: Mapped[str] = mapped_column(String, nullable=True)
     filesize: Mapped[int] = mapped_column(Integer, nullable=True)
-    file_hash: Mapped[str] = mapped_column(String, nullable=True)
-
-
-class UserFiles(SqlAlchemyBase, SerializerMixin):
-    __tablename__ = 'user_files'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    fileUUID: Mapped[str] = mapped_column(String, nullable=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    file_id: Mapped[int] = mapped_column(Integer, ForeignKey("files.id"))
+
+    user = relationship('User')

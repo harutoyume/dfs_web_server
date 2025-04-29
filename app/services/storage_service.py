@@ -16,6 +16,8 @@ class StorageService:
         chunk_index = chunk_info["chunkIndex"]
         hosts = chunk_info["hosts"]
 
+        logger.info(f'Trying to download chunk: {self.file_uuid=}, {chunk_uuid=}, {chunk_index=}, {hosts=}')
+
         # Try each host until successful
         for host_info in hosts:
             host = host_info["host"]

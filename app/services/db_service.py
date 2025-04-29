@@ -11,6 +11,9 @@ import logging
 from config import Config
 
 
+# Setup logger
+logger = logging.getLogger(__name__)
+
 # Base class for declarative class definitions
 SqlAlchemyBase = dec.declarative_base()  
 
@@ -33,14 +36,14 @@ def global_init():
 
     # Create connection string for PostgreSQL
     conn_str = f'postgresql://{user}:{password}@{host}:{port}/{name}'
-    print(f"Connecting to database on address {conn_str}")
+    logger.info(f"Connecting to database on address {conn_str}")
 
     # Create database engine with the connection string
     engine = sa.create_engine(conn_str, echo=False)
     # Create session factory bound to the engine
     __factory = orm.sessionmaker(bind=engine)
     
-    from app.services.db_models import User, File, UserFiles
+    from app.services.db_models import User, File
     # Create all tables in the database that inherit from SqlAlchemyBase
     SqlAlchemyBase.metadata.create_all(engine)
 

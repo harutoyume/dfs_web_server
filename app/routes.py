@@ -13,7 +13,7 @@ from config import Config
 from app.services.storage_service import StorageService
 from app.services.metadata_service import MetadataService
 from app.services.form_service import RegisterForm, LoginForm
-from app.services.db_models import User
+from app.services.db_models import User, File
 from app.services import db_service
 
 # Create application
@@ -34,10 +34,6 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# In-memory store for available files (in a real app, this would be a database)
-available_files = []
-downloaded_files = []
-
 # Setup user loader to to reload the user object from the user ID stored in the session
 @login_manager.user_loader
 def load_user(user_id):
@@ -47,11 +43,6 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
-    db_session = db_service.create_session()
-    
-    if current_user.is_authenticated:
-        print("Found authorized user!")
-
     return render_template('index.html')
 
 
@@ -64,6 +55,7 @@ def login():
         user = db_session.query(User).filter(User.email == form.email.data).first()
 
         if user and user.check_password(form.password.data):
+            logger.info(f'User: "{user.username}"(id={user.id})\t->\tlogin')
             login_user(user, remember=form.remember_me.data)
             return redirect('/')
         
@@ -76,6 +68,7 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    logger.info(f'User: "{current_user.username}"(id={current_user.id})\t->\tlogout')
     logout_user()
     return redirect('/')
 
@@ -101,6 +94,8 @@ def register():
         db_session.add(user)
         db_session.commit()
 
+        logger.info(f'User: "{user.username}"\t->\tregister')
+
         return redirect('/login')
 
     return render_template('register.html', form=form)
@@ -109,9 +104,11 @@ def register():
 @app.route('/files')
 @login_required
 def files():
-    return render_template('files.html',
-                           available_files=available_files,
-                           downloaded_files=downloaded_files)
+    db_session = db_service.create_session()
+    available_files = db_session.query(File).filter(File.user_id == current_user.id)
+
+    logging.info(f'User: "{current_user.username}"(id={current_user.id})\t->\tfiles')
+    return render_template('files.html', available_files=available_files)
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -132,20 +129,28 @@ def upload():
             file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
 
+            logger.info(f'User: "{current_user.username}"(id={current_user.id})\t->\tupload\t->\t"{filename}"')
+
             try:
                 # Upload file to Meta Data server
-                chunk_size = request.form.get('chunkSize', '400')
                 metadata_service = MetadataService(current_app.config['METADATA_SERVER_URL'])
 
-                response = metadata_service.upload_file(file_path, chunk_size)
+                # Get response from metadata
+                response = metadata_service.upload_file(file_path)
 
-                file_info = {
-                    'id': response.get('fileUUID'),
-                    'name': filename,
-                    'size': os.path.getsize(file_path),
-                    'uploaded_at': response.get('uploadedAt', 'now')
-                }
-                available_files.append(file_info)
+                # Make db session and make File instance
+                db_session = db_service.create_session()
+                file = File(
+                    filename=filename,
+                    filesize=response['fileSizeBytes'],
+                    fileUUID=response['fileUUID'],
+                    user_id=current_user.id
+                )
+
+                # Connect file with current user and add it in db
+                # current_user.file.append(file)
+                db_session.add(file)
+                db_session.commit()
 
                 # Remove temporary file
                 os.remove(file_path)
@@ -153,7 +158,7 @@ def upload():
                 flash(f'File {filename} uploaded successfully')
                 logger.info(f"File uploaded: {filename}")
 
-                return redirect(url_for('main.files'))
+                return redirect(url_for('files'))
             except Exception as e:
                 flash(f'Error: {str(e)}')
                 logger.error(f"Upload error: {str(e)}")
@@ -170,9 +175,15 @@ def download(file_id: int):
     try:
         # Get file metadata and chunks from Metadata server
         metadata_service = MetadataService(current_app.config['METADATA_SERVER_URL'])
-        file_info = metadata_service.get_file_chunks(file_id)
 
-        filename = file_info.get('filename')
+        db_session = db_service.create_session()
+        file_data = db_session.query(File).filter(File.id == file_id).first()
+        file_uuid = file_data.fileUUID
+        filename = file_data.filename
+
+        logger.info(f'User: "{current_user.username}"(id={current_user.id})\t->\tdownload\t->\t"{filename}"(id={file_data.id})')
+
+        file_info = metadata_service.get_file_chunks(file_uuid)
 
         # Create temp file for assembled result
         temp_dir = tempfile.mkdtemp()
@@ -180,15 +191,7 @@ def download(file_id: int):
 
         # Download and assemble chunks
         storage_service = StorageService()
-        storage_service.download_and_assemble_file(file_id, file_info, output_path)
-
-        # Add to downloaded files list
-        if not any(f['id'] == file_id for f in downloaded_files):
-            downloaded_files.append({
-                'id': file_id,
-                'name': filename,
-                'downloaded_at': 'now'  # In a real app, use datetime
-            })
+        storage_service.download_and_assemble_file(file_uuid, file_info, output_path)
 
         logger.info(f"File downloaded: {filename}")
 
@@ -197,7 +200,7 @@ def download(file_id: int):
     except Exception as e:
         flash(f'Error downloading file: {str(e)}')
         logger.error(f"Download error: {str(e)}")
-        return redirect(url_for('main.files'))
+        return redirect(url_for('files'))
 
 # ну такого бэк пока не могёт
 # @main.route('/delete/<file_id>', methods=['POST'])
