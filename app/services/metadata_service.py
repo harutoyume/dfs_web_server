@@ -33,15 +33,16 @@ class MetadataService:
             url = f"{self.base_url}/api/files/upload"
             logger.info(f"Sending request to {url=}")
             with open(file_path, 'rb') as file:
+                file_hash = self.sha256(file_path)
                 files = {'file': (os.path.basename(file_path), file, 'application/octet-stream')}
-                payload = {'fileHash': self.sha256(file_path)}
+                payload = {'fileHash': file_hash}
 
                 response = requests.post(url, files=files, data=payload)
 
                 if response.status_code == 200:
                     logger.info(f"File uploaded successfully: {file_path}")
                     logger.info(f"Response json: {response.json()}")
-                    return response.json()
+                    return response.json(), file_hash
                 else:
                     logger.error(f"Error uploading file: {response.text}")
                     raise Exception(f"Upload failed: {response.text}")

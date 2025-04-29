@@ -35,6 +35,7 @@ class File(SqlAlchemyBase, SerializerMixin):
     filename: Mapped[str] = mapped_column(String, nullable=True)
     filesize: Mapped[int] = mapped_column(Integer, nullable=True)
     fileUUID: Mapped[str] = mapped_column(String, nullable=True)
+    filehash: Mapped[str] = mapped_column(String, nullable=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
     user = relationship('User')

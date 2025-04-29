@@ -132,11 +132,14 @@ def upload():
             logger.info(f'User: "{current_user.username}"(id={current_user.id})\t->\tupload\t->\t"{filename}"')
 
             try:
-                # Upload file to Meta Data server
+                # Create metadata instance
                 metadata_service = MetadataService(current_app.config['METADATA_SERVER_URL'])
 
-                # Get response from metadata
-                response = metadata_service.upload_file(file_path)
+                # Upload file to Meta Data server
+                response, file_hash = metadata_service.upload_file(file_path)
+
+                if response.get('status') != None:
+                    raise Exception(f"Failed to upload file: {response}")
 
                 # Make db session and make File instance
                 db_session = db_service.create_session()
@@ -144,11 +147,11 @@ def upload():
                     filename=filename,
                     filesize=response['fileSizeBytes'],
                     fileUUID=response['fileUUID'],
+                    filehash=file_hash,
                     user_id=current_user.id
                 )
 
                 # Connect file with current user and add it in db
-                # current_user.file.append(file)
                 db_session.add(file)
                 db_session.commit()
 
@@ -192,14 +195,18 @@ def download(file_id: int):
 
         # Download and assemble chunks
         storage_service = StorageService()
-        storage_service.download_and_assemble_file(file_uuid, file_info, output_path)
+        _, download_hash = storage_service.download_and_assemble_file(file_uuid, file_info, output_path)
 
         logger.info(f"File downloaded: {filename}")
+
+        logger.info(f"Checking hash...")        
+        if file_data.filehash != download_hash:
+            raise Exception(f"Hash doesn't match: {file_data.filehash} != {download_hash}")
 
         # Send assembled file to user
         return send_file(output_path, as_attachment=True, download_name=filename)
     except Exception as e:
-        flash(f'Error downloading file: {str(e)}')
+        flash(f'Error downloading file: try again, please')
         logger.error(f"Download error: {str(e)}")
         return redirect(url_for('files'))
 

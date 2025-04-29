@@ -2,6 +2,7 @@
 import requests
 
 # Import built-in modules
+import hashlib
 import logging
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
@@ -65,10 +66,13 @@ class StorageService:
         # Sort chunks by index (in case they were returned out of order)
         downloaded_chunks.sort(key=lambda x: x["index"])
 
+        # Setup hash checker
+        sha256 = hashlib.sha256()
         # Assemble chunks into the final file
         with open(temp_path, 'wb') as output_file:
             for chunk in downloaded_chunks:
                 output_file.write(chunk["data"])
+                sha256.update(chunk["data"])
 
         logger.info(f"Successfully assembled file: {file_info['filename']}")
-        return temp_path
+        return temp_path, sha256.hexdigest()
