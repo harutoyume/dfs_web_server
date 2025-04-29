@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 # Import built-in modules
 import os
 
+# Import project files
+from config import Config
+
 
 # Base class for declarative class definitions
 SqlAlchemyBase = dec.declarative_base()  
@@ -26,16 +29,11 @@ def global_init():
     if __factory:  # If factory already exists, return
         return
     
-    dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
-    if os.path.exists(dotenv_path):
-        # Load environment variables
-        load_dotenv(dotenv_path)
-    
-    user = os.getenv('DB_USER', 'postgres')
-    password = os.getenv('DB_USER', 'postgres')
-    host = os.getenv('DB_HOST', 'localhost')
-    port = os.getenv('DB_PORT', '5432')
-    name = os.getenv('DB_NAME', 'postgres')
+    user = Config.DB_USER
+    password = Config.DB_PASSWORD
+    host = Config.DB_HOST
+    port = Config.DB_PORT
+    name = Config.DB_NAME
 
     # Create connection string for PostgreSQL
     conn_str = f'postgresql://{user}:{password}@{host}:{port}/{name}'
