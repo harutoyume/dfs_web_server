@@ -13,7 +13,7 @@ from config import Config
 from app.services.storage_service import StorageService
 from app.services.metadata_service import MetadataService
 from app.services.form_service import RegisterForm, LoginForm
-from app.services.db_models import User, File, UserFiles
+from app.services.db_models import User
 from app.services import db_service
 
 # Create application

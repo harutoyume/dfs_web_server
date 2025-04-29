@@ -1,6 +1,5 @@
 # Import downloaded modules
 import requests
-from flask import current_app
 
 # Import built-in modules
 import logging

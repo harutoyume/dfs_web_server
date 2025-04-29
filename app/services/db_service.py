@@ -3,10 +3,9 @@ import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from sqlalchemy.orm import Session
 import sqlalchemy.ext.declarative as dec
-from dotenv import load_dotenv
 
 # Import built-in modules
-import os
+import logging
 
 # Import project files
 from config import Config
@@ -18,9 +17,6 @@ SqlAlchemyBase = dec.declarative_base()
 # Private variable to store the session factory
 __factory = None  
 
-
-def create_tables():
-    pass
 
 def global_init():
     """Initialize the database connection and create session factory."""
@@ -52,5 +48,8 @@ def global_init():
 def create_session() -> Session:
     """Create and return a new database session."""
     global __factory
+    if __factory == None:
+        global_init()
+        
     return __factory()  # Create and return a new session using the factory
 

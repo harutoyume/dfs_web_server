@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:alpine
+    env_file:
+      - .env
+    container_name: ${CONTAINER_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    networks:
+      - db-network
+
+  web:
+    build: .
+    env_file:
+      - .env
+    container_name: ${CONTAINER_WEB}
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+    ports:
+      - "${WEB_PORT}:${WEB_PORT}"
+    depends_on:
+      - db
+    networks:
+      - db-network
+
+volumes:
+  postgres_data:
+  uploads:
+
+networks:
+  db-network:
