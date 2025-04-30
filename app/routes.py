@@ -32,6 +32,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Setup user-system manager
 login_manager = LoginManager()
+login_manager.login_view = 'login'
 login_manager.init_app(app)
 
 # Setup user loader to to reload the user object from the user ID stored in the session
