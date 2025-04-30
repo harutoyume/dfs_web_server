@@ -6,32 +6,30 @@
 <div class="files-page">
     <h2>File management</h2>
 
-    <div class="files-container">
-        <div class="file-section">
-            <h3>Available files</h3>
-            {% if available_files %}
-                <ul class="file-list">
-                    {% for file in available_files %}
-                        <li class="file-item">
-                            <div class="file-info">
-                                <span class="file-name">{{ file.filename }}</span>
-                                <span class="file-details">
-                                    Size: {{ file.filesize }} bytes
-                                </span>
-                            </div>
-                            <div class="file-actions">
-                                <a href="{{ url_for('download', file_id=file.id) }}" class="button primary">Download</a>
-                                <form action="{{ url_for('delete', file_id=file.id) }}" class="inline-form">
-                                    <button type="submit" class="button danger" onclick="return confirm('Confirm deletion')">Delete</button>
-                                </form>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p class="no-files">no available files</p>
-            {% endif %}
-        </div>
+    <div class="file-section">
+        <h3>Available files</h3>
+        {% if available_files %}
+            <ul class="file-list">
+                {% for file in available_files %}
+                    <li class="file-item">
+                        <div class="file-info">
+                            <span class="file-name">{{ file.filename }}</span>
+                            <span class="file-details">
+                                Size: {{ file.filesize }} bytes
+                            </span>
+                        </div>
+                        <div class="file-actions">
+                            <a href="{{ url_for('download', file_id=file.id) }}" class="button primary">Download</a>
+                            <form action="{{ url_for('delete', file_id=file.id) }}" class="inline-form">
+                                <button type="submit" class="button danger" onclick="return confirm('Confirm deletion')">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul> 
+        {% else %}
+            <p class="no-files">no available files</p>
+        {% endif %}
     </div>
 
     <div class="upload-action">
