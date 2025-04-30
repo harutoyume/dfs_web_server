@@ -99,22 +99,22 @@ The web server uses environment variables for configuration. Below is the templa
 ```env
 # General config
 SECRET_KEY='dev-key'
-METADATA_SERVER_URL='http://&lt;meta_data_host&gt;:&lt;meta_data_port&gt;'
+METADATA_SERVER_URL='http://<meta_data_host>:<meta_data_port>'
 
 # Server config
-WEB_ADDRESS='&lt;web_server_host&gt;'
-WEB_PORT='&lt;web_server_port&gt;'
+WEB_ADDRESS='<web_server_host>'
+WEB_PORT='<web_server_port>'
 
 # Database config
 DB_USER='postgres'
 DB_PASSWORD='postgres'
 DB_HOST='db'
-DB_PORT='&lt;data_base_port&gt;'
+DB_PORT='<data_base_port>'
 DB_NAME='postgres'
 
 # Docker config
-CONTAINER_DB='&lt;database_container_name&gt;'
-CONTAINER_WEB='&lt;web_server_container_name&gt;'
+CONTAINER_DB='<database_container_name>'
+CONTAINER_WEB='<web_server_container_name>'
 ```
 
 **Environment variables:**
