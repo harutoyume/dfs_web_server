@@ -56,8 +56,6 @@ class MetadataService:
             url = f"{self.base_url}/api/files/download"
             payload = {"fileUUID": file_uuid}
 
-            logger.info(f"{url=}\n\n{payload=}")
-
             response = requests.post(url, json=payload)
 
             if response.status_code == 200:

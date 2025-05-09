@@ -55,6 +55,8 @@ def login():
         db_session = db_service.create_session()
         user = db_session.query(User).filter(User.email == form.email.data).first()
 
+        logger.info(f"Searching user with email={form.email.data}...")
+
         if user and user.check_password(form.password.data):
             logger.info(f'User: "{user.username}"(id={user.id})\t->\tlogin')
             login_user(user, remember=form.remember_me.data)
@@ -79,6 +81,8 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
+        logger.info("Trying to register new user...")
+
         if form.password.data != form.password_again.data:
             return render_template('register.html', message="Passwords doesn't match!", form=form)
         
@@ -170,6 +174,7 @@ def upload():
                 if os.path.exists(file_path):
                     os.remove(file_path)
 
+    logger.info(f'User: "{current_user.username}"(id={current_user.id})\t->\tupload')
     return render_template('upload.html')
 
 
