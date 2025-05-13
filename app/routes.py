@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 import os
 import logging
 import tempfile
+import math
 
 # Import project file
 from config import Config
@@ -27,6 +28,20 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
+# Add filter for formatting file sizes
+@app.template_filter('format_size')
+def format_size(size_bytes):
+    """Format file size from bytes to human readable format"""
+    if not size_bytes or size_bytes == 0:
+        return "0B"
+    
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    
+    return f"{s} {size_name[i]}"
+
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -40,7 +55,6 @@ login_manager.init_app(app)
 def load_user(user_id):
     db_session = db_service.create_session()
     return db_session.query(User).get(user_id)
-
 
 @app.route('/')
 def index():
