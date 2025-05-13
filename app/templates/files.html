@@ -1,39 +1,59 @@
 {% extends "base.html" %}
 
-{% block title %}Files - Distributed File System{% endblock %}
+{% block title %}My Files - Distributed File Storage{% endblock %}
 
 {% block content %}
 <div class="files-page">
-    <h2>File management</h2>
-
-    <div class="file-section">
-        <h3>Available files</h3>
-        {% if available_files %}
-            <ul class="file-list">
-                {% for file in available_files %}
-                    <li class="file-item">
-                        <div class="file-info">
-                            <span class="file-name">{{ file.filename }}</span>
-                            <span class="file-details">
-                                Size: {{ file.filesize }} bytes
-                            </span>
-                        </div>
-                        <div class="file-actions">
-                            <a href="{{ url_for('download', file_id=file.id) }}" class="button primary">Download</a>
-                            <form action="{{ url_for('delete', file_id=file.id) }}" class="inline-form">
-                                <button type="submit" class="button danger" onclick="return confirm('Confirm deletion')">Delete</button>
-                            </form>
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul> 
-        {% else %}
-            <p class="no-files">no available files</p>
-        {% endif %}
+    <div class="files-header">
+        <h2><i class='bx bx-folder-open'></i> My Files</h2>
+        <a href="{{ url_for('upload') }}" class="btn btn-primary">
+            <i class='bx bx-upload'></i> Upload File
+        </a>
     </div>
 
-    <div class="upload-action">
-        <a href="{{ url_for('upload') }}" class="button primary">Upload new file</a>
-    </div>
+    {% if available_files.count() > 0 %}
+        <div class="file-grid" id="file-container">
+            {% for file in available_files %}
+                <div class="file-card">
+                    <div class="file-card-icon">
+                        <i class='bx bx-file'></i>
+                    </div>
+                    <div class="file-card-body">
+                        <h4 class="file-card-title" title="{{ file.filename }}">{{ file.filename }}</h4>
+                        <div class="file-card-info">
+                            <span class="file-size">{{ format_size(file.filesize) }}</span>
+                            <span class="file-date">{{ file.created_date.strftime('%d %b %Y') if file.created_date }}</span>
+                        </div>
+                    </div>
+                    <div class="file-card-actions">
+                        <a href="{{ url_for('download', file_id=file.id) }}" class="btn btn-sm btn-primary file-action-btn" title="Download">
+                            <i class='bx bx-download'></i>
+                        </a>
+                        <a href="{{ url_for('delete', file_id=file.id) }}" class="btn btn-sm btn-danger file-action-btn" title="Delete" 
+                           onclick="return confirm('Are you sure you want to delete this file?')">
+                            <i class='bx bx-trash'></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class='bx bx-folder-open'></i>
+            </div>
+            <h3>No files yet</h3>
+            <p>Upload your first file to get started</p>
+            <a href="{{ url_for('upload') }}" class="btn btn-primary mt-3">
+                <i class='bx bx-upload'></i> Upload File
+            </a>
+        </div>
+    {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block extra_head %}
 {% endblock %}
