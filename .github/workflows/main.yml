@@ -1,0 +1,84 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/dfs_web_server
+
+jobs:
+  build_and_push_docker:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          ${{ env.DOCKER_IMAGE_NAME }}:latest
+          ${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+
+  deploy:
+    runs-on: self-hosted
+    needs: build_and_push_docker
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      PROJECT_PATH: ${{ secrets.MACOS_PROJECT_PATH }}
+      
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Verify .env file and deployment directory
+      shell: bash
+      run: |
+        echo "Project deployment path on Mac: ${PROJECT_PATH}"
+
+        echo "Verifying docker-compose.yml in ${PROJECT_PATH}"
+        if [ ! -f "${PROJECT_PATH}/docker-compose.yml" ]; then
+          echo "ERROR: docker-compose.yml not found in ${PROJECT_PATH}."
+          exit 1
+        fi
+        echo "Found: ${PROJECT_PATH}/docker-compose.yml"
+
+        echo "Verifying .env file presence at ${PROJECT_PATH}/.env"
+        if [ ! -f "${PROJECT_PATH}/.env" ]; then
+          echo "ERROR: .env file not found at ${PROJECT_PATH}/.env"
+          exit 1
+        fi
+        echo "Found: ${PROJECT_PATH}/.env"
+        
+        echo "Listing contents of ${PROJECT_PATH}:"
+        ls -la "${PROJECT_PATH}"
+
+    - name: Deploy application
+      shell: bash
+      run: |
+        echo "Navigating to project directory: ${PROJECT_PATH}"
+        cd "${PROJECT_PATH}"
+        
+        echo "Current directory: $(pwd)"
+
+        echo "Pulling latest Docker image for web service..."
+        docker-compose -f docker-compose.yml pull web
+        
+        echo "Bringing services up with Docker Compose (using existing .env file)..."
+        docker-compose -f docker-compose.yml up -d --remove-orphans --force-recreate web
+        
+        echo "Deployment complete. Pruning old Docker images..."
+        docker image prune -af # -a to remove all unused images, not just dangling
+        
+        echo "Current Docker containers:"
+        docker ps -a
