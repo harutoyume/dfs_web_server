@@ -1,48 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{% block title %}Distributed File System{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Distributed File Storage{% endblock %}</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <header>
-        <nav>
-            <div class="container">
-                <h1>Distributed file system</h1>
-                <ul>
-                    <li><a href="{{ url_for('index') }}">Main</a></li>
-                    <li><a href="{{ url_for('files') }}">Files</a></li>
-                    <li><a href="{{ url_for('upload') }}">Upload</a></li>
+        <div class="container">
+            <nav>
+                <div class="nav-logo">
+                    <a href="{{ url_for('index') }}">
+                        <h1>
+                            <i class='bx bx-cloud'></i>
+                            DFS System
+                        </h1>
+                    </a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('index') }}" {% if request.path == url_for('index') %}class="active"{% endif %}>
+                        <i class='bx bx-home'></i> Home
+                    </a></li>
                     {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('logout')}}">Logout</a></li>
+                    <li><a href="{{ url_for('files') }}" {% if request.path == url_for('files') %}class="active"{% endif %}>
+                        <i class='bx bx-folder'></i> My Files
+                    </a></li>
+                    <li><a href="{{ url_for('upload') }}" {% if request.path == url_for('upload') %}class="active"{% endif %}>
+                        <i class='bx bx-upload'></i> Upload
+                    </a></li>
+                    <li><a href="{{ url_for('logout')}}">
+                        <i class='bx bx-log-out'></i> Log Out
+                    </a></li>
                     {% else %}
-                    <li><a href="{{ url_for('login')}}">Login</a></li>
-                    <li><a href="{{ url_for('register')}}">Register</a></li>
+                    <li><a href="{{ url_for('login')}}" {% if request.path == url_for('login') %}class="active"{% endif %}>
+                        <i class='bx bx-log-in'></i> Login
+                    </a></li>
+                    <li><a href="{{ url_for('register')}}" {% if request.path == url_for('register') %}class="active"{% endif %}>
+                        <i class='bx bx-user-plus'></i> Register
+                    </a></li>
                     {% endif %}
                 </ul>
-            </div>
-        </nav>
+            </nav>
+        </div>
     </header>
 
-    <main class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="message">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+    <main>
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="message">
+                                <i class='bx bx-info-circle'></i> {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-        {% block content %}{% endblock %}
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     <footer>
         <div class="container">
-            <p>&copy; Spring 2025 Distributed file system</p>
+            <p> &copy; 2025 DFS System. Made in Innopolis <i class='bx bx-heart'></i></p>
         </div>
     </footer>
+    
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const messages = document.querySelector('.messages');
+                if (messages) {
+                    messages.style.opacity = '0';
+                    setTimeout(function() {
+                        messages.style.display = 'none';
+                    }, 500);
+                }
+            }, 5000);
+        });
+    </script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>
