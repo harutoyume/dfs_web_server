@@ -187,6 +187,11 @@ nav {
   background-color: rgba(67, 97, 238, 0.1);
 }
 
+.nav-links li a.nav-link-danger:hover {
+    color: var(--danger);
+    background-color: rgba(239, 71, 111, 0.1);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -490,9 +495,9 @@ nav {
   margin-bottom: var(--space-md);
 }
 
-/* Login/Register pages */
+/* Log In/Sign Up pages */
 .auth-page {
-    max-width: 500px;
+    max-width: 450px;
     margin: 0 auto;
 }
 
@@ -536,6 +541,7 @@ footer p {
   display: inline;
 }
 
+.features {
     margin-top: var(--space-xl);
     padding: var(--space-xl) 0;
 }

@@ -1,31 +1,80 @@
 {% extends "base.html" %}
 
-{%  block title %}Login Page - Distributed File System{% endblock %}
+{% block title %}Log In - Distributed File Storage{% endblock %}
 
 {% block content %}
-    <h1>Authorization</h1>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(class="form-control", type="email") }}<br>
-            {% for error in form.email.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(class="form-control", type="password") }}<br>
-            {% for error in form.password.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        </p>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-        <div>{{ message }}</div>
-    </form>
+<div class="auth-page">
+    <div class="card">
+        <div class="auth-title">
+            <h2><i class='bx bx-log-in'></i> Log In</h2>
+            <p class="text-center mb-3">Sign in to access your files</p>
+        </div>
+
+        {% if message %}
+            <div class="alert alert-danger mb-3">
+                <i class='bx bx-error-circle'></i> {{ message }}
+            </div>
+        {% endif %}
+
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label class="form-label" for="{{ form.email.id }}">
+                    <i class='bx bx-envelope'></i> Email Address
+                </label>
+                {{ form.email(class="form-control", type="email", placeholder="Enter your email") }}
+                {% for error in form.email.errors %}
+                    <div class="alert alert-danger mt-1">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="{{ form.password.id }}">
+                    <i class='bx bx-lock'></i> Password
+                </label>
+                {{ form.password(class="form-control", type="password", placeholder="Enter your password") }}
+                {% for error in form.password.errors %}
+                    <div class="alert alert-danger mt-1">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-check">
+                {{ form.remember_me(class="form-check-input") }} 
+                <label class="form-check-label" for="{{ form.remember_me.id }}">Remember me</label>
+            </div>
+            
+            <div class="form-actions">
+                {{ form.submit(class="btn btn-primary w-100", value="Sign In") }}
+            </div>
+        </form>
+        
+        <div class="auth-footer mt-3 text-center">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Sign Up</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .auth-page {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: var(--space-md);
+    }
+    
+    .w-100 {
+        width: 100%;
+    }
+    
+    .auth-footer {
+        padding-top: var(--space-md);
+        border-top: 1px solid var(--gray-200);
+    }
+</style>
 {% endblock %}
