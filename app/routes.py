@@ -28,19 +28,21 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
-# Add filter for formatting file sizes
-@app.template_filter('format_size')
-def format_size(size_bytes):
-    """Format file size from bytes to human readable format"""
-    if not size_bytes or size_bytes == 0:
-        return "0B"
-    
-    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = int(math.floor(math.log(size_bytes, 1024)))
-    p = math.pow(1024, i)
-    s = round(size_bytes / p, 2)
-    
-    return f"{s} {size_name[i]}"
+# Add context processor for formatting file sizes
+@app.context_processor
+def utility_processor():
+    def format_size(size_bytes):
+        """Format file size from bytes to human readable format"""
+        if not size_bytes or size_bytes == 0:
+            return "0B"
+        
+        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+        i = int(math.floor(math.log(size_bytes, 1024)))
+        p = math.pow(1024, i)
+        s = round(size_bytes / p, 2)
+        
+        return f"{s} {size_name[i]}"
+    return dict(format_size=format_size)
 
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
