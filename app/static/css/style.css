@@ -536,3 +536,34 @@ footer p {
   display: inline;
 }
 
+    margin-top: var(--space-xl);
+    padding: var(--space-xl) 0;
+}
+
+.features-header {
+    margin-bottom: var(--space-xl);
+}
+
+.feature-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+    .feature-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.feature-card {
+    text-align: center;
+    padding: var(--space-xl);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: var(--space-md);
+}
+

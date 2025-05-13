@@ -2,11 +2,62 @@
 
 {% block content %}
 <div class="welcome">
-    <h2>Welcome to Distributed File System</h2>
-    <p>Here you can upload, store, download and delete your files.</p>
-    <div class="actions">
-        <a href="{{ url_for('upload') }}" class="button primary">Upload files</a>
-        <a href="{{ url_for('files') }}" class="button">Lookup files</a>
+    <h2>Distributed File Storage</h2>
+    <p>A scalable and reliable distributed file storage with smart chunk distribution, replication, and integrity verification.</p>
+    
+    <div class="welcome-actions">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('upload') }}" class="btn btn-primary btn-lg">
+                <i class='bx bx-upload'></i> Upload Files
+            </a>
+            <a href="{{ url_for('files') }}" class="btn btn-secondary btn-lg">
+                <i class='bx bx-folder'></i> My Files
+            </a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                <i class='bx bx-user-plus'></i> Register Now
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">
+                <i class='bx bx-log-in'></i> Login
+            </a>
+        {% endif %}
     </div>
 </div>
+
+<div class="features">
+    <div class="features-header">
+        <h3 class="text-center">Distributed File Storage Components</h3>
+    </div>
+    <div class="feature-cards">
+        <div class="card feature-card">
+            <div class="feature-icon">
+                <i class='bx bx-data'></i>
+            </div>
+            <h4>Metadata Server</h4>
+            <p>Spring Boot service that manages chunk distribution, health monitoring, and integrity verification across storage nodes.</p>
+            <a href="https://github.com/Nexonm/dfs-metadata/" class="btn btn-sm btn-primary mt-2">GitHub</a>
+        </div>
+        
+        <div class="card feature-card">
+            <div class="feature-icon">
+                <i class='bx bx-server'></i>
+            </div>
+            <h4>Storage Nodes</h4>
+            <p>Distributed network of Spring Boot services that store file chunks with replication support and integrity verification.</p>
+            <a href="https://github.com/Nexonm/dfs-storage-node" class="btn btn-sm btn-primary mt-2">GitHub</a>
+        </div>
+        
+        <div class="card feature-card">
+            <div class="feature-icon">
+                <i class='bx bx-globe'></i>
+            </div>
+            <h4>Web Server</h4>
+            <p>Flask-based web interface providing user authentication and intuitive file management for the distributed storage system.</p>
+            <a href="https://github.com/harutoyume/dfs_web_server" class="btn btn-sm btn-primary mt-2">GitHub</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
 {% endblock %}
