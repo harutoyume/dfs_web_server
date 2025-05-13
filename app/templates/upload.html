@@ -1,21 +1,124 @@
 {% extends "base.html" %}
 
-{% block title %}Upload file - Distributed File System{% endblock %}
+{% block title %}Upload File - Distributed File Storage{% endblock %}
 
 {% block content %}
 <div class="upload-page">
-    <h2>Upload file</h2>
+    <div class="card">
+        <h2 class="text-center"><i class='bx bx-upload'></i> Upload File</h2>
+        <p class="text-center mb-3">Select a file to upload to your storage</p>
 
-    <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
-        <div class="form-group">
-            <label for="file">Select a file:</label>
-            <input type="file" id="file" name="file" required>
-        </div>
+        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+            <div class="file-upload-area" id="drop-area">
+                <div class="file-upload-icon">
+                    <i class='bx bx-cloud-upload'></i>
+                </div>
+                <div class="file-upload-text">
+                    <p>Drag and drop your file here, or</p>
+                    <label for="file" class="btn btn-primary">
+                        <i class='bx bx-folder-open'></i> Browse files
+                    </label>
+                    <input type="file" id="file" name="file" required style="display: none;">
+                </div>
+                <div id="file-details" class="mt-2" style="display: none;">
+                    <p class="selected-file-name"></p>
+                    <p class="selected-file-size"></p>
+                </div>
+            </div>
 
-        <div class="form-actions">
-            <button type="submit" class="button primary">Upload</button>
-            <a href="{{ url_for('files') }}" class="button">Cancel</a>
-        </div>
-    </form>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="upload-btn" disabled>
+                    <i class='bx bx-upload'></i> Upload File
+                </button>
+                <a href="{{ url_for('files') }}" class="btn btn-secondary">
+                    <i class='bx bx-x'></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('file');
+        const fileDetails = document.getElementById('file-details');
+        const fileNameEl = document.querySelector('.selected-file-name');
+        const fileSizeEl = document.querySelector('.selected-file-size');
+        const uploadBtn = document.getElementById('upload-btn');
+        
+        // Prevent default behavior for drag events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+        
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            updateFileDetails();
+        }
+        
+        // Handle file input changes
+        fileInput.addEventListener('change', updateFileDetails);
+        
+        function updateFileDetails() {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileNameEl.textContent = `File: ${file.name}`;
+                fileSizeEl.textContent = `Size: ${formatFileSize(file.size)}`;
+                fileDetails.style.display = 'block';
+                uploadBtn.disabled = false;
+            } else {
+                fileDetails.style.display = 'none';
+                uploadBtn.disabled = true;
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Handle click on the drop area to trigger file input
+        dropArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+    });
+</script>
+{% endblock %}
+
+{% block extra_head %}
 {% endblock %}
