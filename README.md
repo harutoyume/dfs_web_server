@@ -32,6 +32,9 @@ Clean interface with CSS styling for various devices
 
 ```
 web_server/
+├── .github/
+│   ├── workflows/
+│       └── main.yml
 ├── app/
 │   ├── routes.py
 │   ├── services/
@@ -53,6 +56,7 @@ web_server/
 ├── .env
 ├── .gitignore
 ├── config.py
+├── docker-compose.yml
 ├── Dockerfile
 ├── README.md
 ├── requirements.txt
