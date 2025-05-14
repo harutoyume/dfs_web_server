@@ -38,14 +38,17 @@ def global_init():
     conn_str = f'postgresql://{user}:{password}@{host}:{port}/{name}'
     logger.info(f"Connecting to database on address {conn_str}")
 
-    # Create database engine with the connection string
-    engine = sa.create_engine(conn_str, echo=False)
-    # Create session factory bound to the engine
-    __factory = orm.sessionmaker(bind=engine)
-    
-    from app.services.db_models import User, File
-    # Create all tables in the database that inherit from SqlAlchemyBase
-    SqlAlchemyBase.metadata.create_all(engine)
+    try:
+        # Create database engine with the connection string
+        engine = sa.create_engine(conn_str, echo=False)
+        # Create session factory bound to the engine
+        __factory = orm.sessionmaker(bind=engine)
+        
+        from app.services.db_models import User, File
+        # Create all tables in the database that inherit from SqlAlchemyBase
+        SqlAlchemyBase.metadata.create_all(engine)
+    except Exception as e:
+        logger.error(f"Error when connecting to database: {e}")
 
 
 def create_session() -> Session:
