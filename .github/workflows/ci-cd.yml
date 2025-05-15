@@ -37,8 +37,8 @@ jobs:
 
     - name: Start test container
       run: |
-        echo "Starting test container (web-test-container on host port 9000 mapped to container port 5000)..."
-        docker compose -f docker-compose.yml run --name web-test-container -d -p 9000:5000 web
+        echo "Starting test container (web-test-container on host port 9001 mapped to container port 5000)..."
+        docker compose -f docker-compose.yml run --name web-test-container -d -p 9001:5000 web
 
     - name: Wait for application to start
       run: |
@@ -47,8 +47,8 @@ jobs:
 
     - name: Test the container / code
       run: |
-        echo "Testing application health at http://localhost:9000/ ..."
-        curl -f --retry 5 --retry-delay 5 --retry-connrefused http://localhost:9000/
+        echo "Testing application health at http://localhost:9001/ ..."
+        curl -f --retry 5 --retry-delay 5 --retry-connrefused http://localhost:9001/
 
     - name: Stop test container
       run: |
