@@ -354,17 +354,20 @@ nav {
   color: var(--warning);
 }
 
+.alert-info {
+  background-color: rgba(67, 97, 238, 0.1);
+  border-left-color: var(--primary);
+  color: var(--primary);
+}
+
 /* Messages */
-.messages {
+.messages-container {
   margin-bottom: var(--space-lg);
 }
 
 .message {
   padding: var(--space-md);
-  background-color: rgba(239, 71, 111, 0.1);
-  border-left: 4px solid var(--danger);
   border-radius: var(--radius-md);
-  color: var(--danger);
   margin-bottom: var(--space-sm);
 }
 
