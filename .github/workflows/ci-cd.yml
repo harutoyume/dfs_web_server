@@ -22,7 +22,7 @@ jobs:
     - name: Build Docker image
       run: |
         echo "Building Docker image for web service..."
-        docker compose docker-compose.yml build web
+        docker compose -f docker-compose.yml build web
 
     - name: Delete dangling images (after build)
       run: |
@@ -38,7 +38,7 @@ jobs:
     - name: Start test container
       run: |
         echo "Starting test container (web-test-container on host port 9000 mapped to container port 5000)..."
-        docker compose docker-compose.yml run --name web-test-container -d -p 9000:5000 web
+        docker compose -f docker-compose.yml run --name web-test-container -d -p 9000:5000 web
 
     - name: Wait for application to start
       run: |
@@ -74,12 +74,12 @@ jobs:
     - name: Stop and Remove existing services (if any)
       run: |
         echo "Bringing down any existing services defined in docker-compose.yml to ensure a clean state..."
-        docker compose docker-compose.yml down --remove-orphans || true
+        docker compose -f docker-compose.yml down --remove-orphans || true
 
     - name: Run current deploy container
       run: |
         echo "Deploying application using Docker Compose..."
-        docker compose docker-compose.yml up -d --force-recreate web
+        docker compose -f docker-compose.yml up -d --force-recreate web
 
     - name: Display running containers
       run: |
