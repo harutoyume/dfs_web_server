@@ -85,7 +85,7 @@ jobs:
     - name: Run current deploy container
       run: |
         echo "Deploying application using Docker Compose..."
-        docker compose -f docker-compose.yml up -d --force-recreate web
+        docker-compose -f docker-compose.yml up -d --force-recreate web
 
     - name: Display running containers
       run: |
