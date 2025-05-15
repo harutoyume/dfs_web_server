@@ -34,6 +34,13 @@ jobs:
       run: |
         echo "Creating Docker network dfs_network..."
         docker network create dfs_network || true
+    
+    - name: Clean any test containers
+      run: |
+        echo "Stopping test container..."
+        docker stop web-test-container || true
+        echo "Deleting test container..."
+        docker rm web-test-container || true
 
     - name: Start test container
       run: |
