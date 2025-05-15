@@ -137,12 +137,12 @@ def files():
 def upload():
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file part', 'error')
             return redirect(request.url)
 
         file = request.files['file']
         if file.filename == '':
-            flash('No selected file')
+            flash('No selected file', 'error')
             return redirect(request.url)
 
         if file:
@@ -179,12 +179,12 @@ def upload():
                 # Remove temporary file
                 os.remove(file_path)
 
-                flash(f'File {filename} uploaded successfully')
+                flash(f'File {filename} uploaded successfully', 'success')
                 logger.info(f"File uploaded: {filename}")
 
                 return redirect(url_for('files'))
             except Exception as e:
-                flash(f'Error: {str(e)}')
+                flash(f'Error: {str(e)}', 'error')
                 logger.error(f"Upload error: {str(e)}")
 
                 if os.path.exists(file_path):
@@ -228,7 +228,7 @@ def download(file_id: int):
         # Send assembled file to user
         return send_file(output_path, as_attachment=True, download_name=filename)
     except Exception as e:
-        flash(f'Error downloading file: try again, please')
+        flash(f'Error downloading file: try again, please', 'error')
         logger.error(f"Download error: {str(e)}")
         return redirect(url_for('files'))
 
@@ -255,13 +255,18 @@ def delete(file_id):
             db_session.delete(file_data)
             db_session.commit()
 
-            flash('File deleted successfully')
-            logger.info(f"File deleted: {file_id}")
+            flash('File deleted successfully', 'success')
+            logger.info(f"File deleted: {filename}")
+            
+            return redirect(url_for('files'))
         else:
-            flash('Error deleting file')
+            flash('Error deleting file', 'error')
 
-    except Exception as e:
-        flash(f'Error: {str(e)}')
+    except FileNotFoundError as e:
+        flash('Error deleting file', 'error')
         logger.error(f"Delete error: {str(e)}")
-
-    return redirect(url_for('files'))
+        return redirect(url_for('files'))
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+        logger.error(f"Delete error: {str(e)}")
+        return redirect(url_for('files'))

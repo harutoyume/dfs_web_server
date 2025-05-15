@@ -50,11 +50,11 @@
 
     <main>
         <div class="container">
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <div class="message">
+                    <div class="messages-container">
+                        {% for category, message in messages %}
+                            <div class="message {% if category == 'success' %}alert-success{% elif category == 'error' %}alert-danger{% else %}alert-info{% endif %}">
                                 <i class='bx bx-info-circle'></i> {{ message }}
                             </div>
                         {% endfor %}
@@ -76,11 +76,12 @@
         // Auto-hide flash messages after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                const messages = document.querySelector('.messages');
-                if (messages) {
-                    messages.style.opacity = '0';
+                const messagesContainer = document.querySelector('.messages-container');
+                if (messagesContainer) {
+                    messagesContainer.style.transition = 'opacity 0.5s ease-out';
+                    messagesContainer.style.opacity = '0';
                     setTimeout(function() {
-                        messages.style.display = 'none';
+                        messagesContainer.style.display = 'none';
                     }, 500);
                 }
             }, 5000);
