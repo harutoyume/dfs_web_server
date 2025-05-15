@@ -77,7 +77,7 @@ web_server/
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/dfs-web-server.git
+git clone https://github.com/harutoyume/dfs-web-server.git
 cd dfs-web-server
 ```
 

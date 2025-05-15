@@ -1,0 +1,92 @@
+name: CI/CD Pipeline for DFS Web Server
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build_test_deploy:
+    runs-on: ubuntu-latest
+    env:
+      METADATA_SERVER_URL: ${{ secrets.METADATA_SERVER_URL }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    # 1. BUILD STAGE
+    - name: Build Docker image
+      run: |
+        echo "Building Docker image for web service..."
+        docker-compose -f docker-compose.yml build web
+
+    - name: Delete dangling images (after build)
+      run: |
+        echo "Cleaning up dangling images after build..."
+        docker image prune -f
+
+    # 2. TEST STAGE
+    - name: Create common network for testing
+      run: |
+        echo "Creating Docker network dfs_network..."
+        docker network create dfs_network || true
+
+    - name: Start test container
+      run: |
+        echo "Starting test container (web-test-container on host port 9000 mapped to container port 5000)..."
+        docker-compose -f docker-compose.yml run --name web-test-container -d -p 9000:5000 web
+
+    - name: Wait for application to start
+      run: |
+        echo "Waiting 20 seconds for application to start..."
+        sleep 20
+
+    - name: Test the container / code
+      run: |
+        echo "Testing application health at http://localhost:9000/ ..."
+        curl -f --retry 5 --retry-delay 5 --retry-connrefused http://localhost:9000/
+
+    - name: Stop test container
+      run: |
+        echo "Stopping test container..."
+        docker stop web-test-container
+
+    - name: Delete test container
+      run: |
+        echo "Deleting test container..."
+        docker rm web-test-container
+
+    - name: Delete dangling images (after test)
+      run: |
+        echo "Cleaning up dangling images after test..."
+        docker image prune -f
+
+    # 3. DEPLOY STAGE (simulated on the runner)
+    - name: Create common network for deployment
+      run: |
+        echo "Ensuring Docker network dfs_network exists..."
+        docker network create dfs_network || true
+
+    - name: Stop and Remove existing services (if any)
+      run: |
+        echo "Bringing down any existing services defined in docker-compose.yml to ensure a clean state..."
+        docker-compose -f docker-compose.yml down --remove-orphans || true
+
+    - name: Run current deploy container
+      run: |
+        echo "Deploying application using Docker Compose..."
+        docker-compose -f docker-compose.yml up -d --force-recreate web
+
+    - name: Display running containers
+      run: |
+        echo "Current Docker containers after deployment:"
+        docker ps -a
+
+    - name: Clean dangling images (after deployment)
+      run: |
+        echo "Cleaning up dangling images after deployment..."
+        docker image prune -f 
