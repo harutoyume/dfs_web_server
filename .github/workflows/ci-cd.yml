@@ -76,6 +76,12 @@ jobs:
         echo "Bringing down any existing services defined in docker-compose.yml to ensure a clean state..."
         docker compose -f docker-compose.yml down --remove-orphans || true
 
+    - name: Check for processes using port 9000
+      run: |
+        echo "Checking if port 9000 is in use..."
+        docker ps -a
+        lsof -i :9000 || echo "Port 9000 is free"
+
     - name: Run current deploy container
       run: |
         echo "Deploying application using Docker Compose..."
